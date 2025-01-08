@@ -1,0 +1,16 @@
+version: 3
+models:
+  - name: Silver
+    columns:
+      - name: match_city
+        tests:
+          - not_null
+      - name: inning_number
+        tests:
+          - accepted_values:
+              values: [1,2,3,4]
+      - name: runs_total
+        tests:
+          - accepted_values:
+              values: [0,1, 2, 3, 4, 5, 6, 7, 8]
+      

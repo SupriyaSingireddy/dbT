@@ -1,31 +1,9 @@
 {{ config(materialized='table') }}
 
-WITH match_data AS (
-    SELECT 
-        batter, 
-        bowler, 
-        non_striker, 
-        runs_batter, 
-        runs_extras, 
-        runs_total, 
-        delivery_number, 
-        over_number, 
-        team, 
-        inning_number, 
-        match_name, 
-        match_id,
-        match_city, 
-        match_venue, 
-        match_type, 
-        team_type, 
-        match_start_date,
-        player_out
-    FROM 
-        Data.silver
-),
-bowler_aggregates AS (
+WITH bowler_aggregates AS (
     SELECT
         bowler,
+        Team,
         over_number,
         match_id,
         inning_number,
@@ -40,11 +18,13 @@ bowler_aggregates AS (
         -- Count total number of deliveries bowled in that over
         COUNT(*) AS number_of_deliveries,
         -- Sum up total runs given in that over, including 4s, 6s, and extras
-        SUM(runs_total) AS runs_given
+        SUM(runs_total) AS runs_given,
+        -- Count the number of wickets per over for the bowler
+        COUNT(CASE WHEN player_out != 'Not out' AND player_out IS NOT NULL THEN 1 ELSE NULL END) AS wickets
     FROM 
-        match_data
+        data.silver
     GROUP BY 
-        bowler, over_number, match_id, inning_number
+        bowler, over_number, match_id, inning_number, Team
 ),
 Team_Player AS (
     SELECT 
@@ -62,31 +42,26 @@ Player_Info AS (
 )
 
 SELECT
-    A.match_id,
-    A.over_number,
-    A.bowler AS bowler_id,  -- Bowler ID
+    B.match_id,
+    T.team_id,
+    PI.player_id AS Bowler_id,
+    B.inning_number,
+    B.over_number,
     B.fours_given,
     B.sixes_given,
     B.non_boundaries_given,
     B.extras_given,
     B.runs_given,  -- Total runs conceded by the bowler in that over
-    A.inning_number,
     B.number_of_deliveries,
-    PI.player_id,
+    B.wickets,
     PI.player_name
 FROM
-    match_data A
-INNER JOIN 
     bowler_aggregates B 
-    ON A.bowler = B.bowler 
-    AND A.over_number = B.over_number 
-    AND A.match_id = B.match_id  -- Aggregating by bowler and over number
 INNER JOIN 
     Team_Player T 
-    ON A.team = T.team_name  -- Join match data with team details
+    ON B.Team = T.team_name  -- Join match data with team details
 INNER JOIN 
     Player_Info PI 
-    ON A.bowler = PI.player_name  -- Join match data with player details (for bowler)
+    ON B.bowler = PI.player_name  -- Join match data with player details (for bowler)
 ORDER BY 
-    A.match_id, A.inning_number, A.over_number, A.bowler
-
+    B.match_id, B.inning_number, B.over_number, B.bowler

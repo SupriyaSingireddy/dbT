@@ -17,7 +17,8 @@ Team_Player AS (
 
 SELECT  
     B.League_id,
-    C.team_id
+    C.team_id,
+    UUID_STRING() AS Team_League_xref_id   
 FROM 
     match_data A
 INNER JOIN 

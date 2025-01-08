@@ -1,0 +1,23 @@
+version: 3
+models:
+  - name: Team_Player
+    description: "Table linking players and teams"
+    columns:
+      - name: team_id
+        description: "ID of the team"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('team')  # Reference to the team model
+              field: team_id   # The column in team_player to validate
+      - name: player_id
+        description: "ID of the player"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('player')  # Reference to the player model
+              field: player_id   # The column in team_player to validate
+      - name: team_player_xref_id
+        description: "Cross-reference ID for the team-player relationship"
+        tests:
+          - not_null
