@@ -6,6 +6,7 @@ WITH innings_data AS (
         inning_number,
         match_city,
         match_venue,
+        match_start_date,
         -- Categorize innings
         CASE 
             WHEN inning_number = 1 THEN 'first_inning'
@@ -53,7 +54,8 @@ final_summary AS (
         i.inning_category,
         m.team_id,
         t.league_id,
-        l.location_id
+        l.location_id,
+        i.match_start_date
     FROM 
         innings_data i
     JOIN 
@@ -72,7 +74,8 @@ SELECT
     MAX(CASE WHEN inning_category = 'third_inning' THEN team_id END) AS Third_Innings_Team_ID,
     MAX(CASE WHEN inning_category = 'fourth_inning' THEN team_id END) AS Fourth_Innings_Team_ID,
     MAX(league_id) AS League_ID,
-    MAX(location_id) AS Location_ID
+    MAX(location_id) AS Location_ID,
+    Max(match_start_date) as match_start_date
 FROM 
     final_summary
 GROUP BY
