@@ -29,7 +29,9 @@ Player_idmodel AS (
 
 SELECT  
     B.team_id,
+    B.Team_Name,
     C.Player_id,
+    C.Player_Name,
     UUID_STRING() AS Team_Player_xref_id    
 FROM 
     player_data A

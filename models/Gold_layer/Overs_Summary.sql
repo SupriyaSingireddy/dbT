@@ -24,7 +24,7 @@ WITH bowler_aggregates AS (
     FROM 
         data.silver
     GROUP BY 
-        bowler, over_number, match_id, inning_number, Team
+        bowler, over_number, match_id, inning_number, Team,match_start_date
 ),
 Team_Player AS (
     SELECT 

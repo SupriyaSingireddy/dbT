@@ -3,7 +3,7 @@
 WITH innings_data AS (
     SELECT
         batter, match_type, match_id,
-        inning_number, Team,
+        inning_number, Team,match_start_date,
         SUM(CASE WHEN runs_batter = 4 THEN 1 ELSE 0 END) AS fours,
         SUM(CASE WHEN runs_batter = 6 THEN 1 ELSE 0 END) AS sixes,
         SUM(CASE WHEN runs_batter NOT IN (4, 6) THEN 1 ELSE 0 END) AS non_boundaries,
@@ -13,7 +13,7 @@ WITH innings_data AS (
     FROM
         Data.Silver
     GROUP BY
-        batter, inning_number, match_type, match_id, Team
+        batter, inning_number, match_type, match_id, Team, match_start_date
 ),
 Player_idmodel AS (
     SELECT 
@@ -42,7 +42,8 @@ SELECT
     A.balls_faced,
     A.score,
     A.match_type, 
-    A.match_id
+    A.match_id,
+    A.match_start_date
 FROM
     innings_data AS A
 INNER JOIN Player_idmodel AS B 
